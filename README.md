@@ -27,6 +27,7 @@ It is a shame too because understanding economics (how you can make assumptions 
 > **GDP = Output of a County =** 
 
 > C + G + I + NX
+
 > Stuff Citizens Buy + Government Spending + Stuff Companies Buy + (Xports – iMports)
 
 
