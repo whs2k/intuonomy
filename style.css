@@ -1,0 +1,367 @@
+/* Light Theme based on Wireframes */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --border-color: #333333;
+    --purple: #5c425c;
+    --purple-light: #f4eaf4;
+    --yellow: #e8dbad;
+    --green: #4ca64c;
+    --red: #d9534f;
+    --gray-bg: #e6e6e6;
+    --gray-dark: #8c8c8c;
+    --graph-bg: #aec1ae; /* Muted greenish-gray from the graph background */
+    --font-main: 'Montserrat', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.logo h1 {
+    font-size: 28px;
+    font-weight: 500;
+}
+
+.logo p {
+    font-size: 14px;
+    color: var(--gray-dark);
+}
+
+.vector-logo {
+    border: 1.5px solid var(--border-color);
+    padding: 10px 15px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Navigation */
+.tabs {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.tab {
+    border: 1.5px solid var(--border-color);
+    background: none;
+    padding: 8px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: var(--font-main);
+}
+
+.tab.active {
+    background-color: var(--purple);
+    color: white;
+}
+
+/* Toggles Row */
+.toggles-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.toggle-btn {
+    flex: 1;
+    border: 1.5px solid var(--border-color);
+    background: none;
+    padding: 8px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: var(--font-main);
+}
+
+.toggle-btn.active {
+    background-color: var(--gray-dark);
+    color: white;
+}
+
+.or {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Box styles */
+.box {
+    border: 1.5px solid var(--border-color);
+    padding: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.box-title {
+    position: absolute;
+    top: -10px;
+    background: var(--bg-color);
+    padding: 0 5px;
+    font-size: 12px;
+}
+
+/* Models and Variables Row */
+.models-vars-row {
+    display: flex;
+    gap: 20px;
+}
+
+.models-box {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.model-btn {
+    border: 1.5px solid var(--border-color);
+    background: none;
+    padding: 8px 15px;
+    font-family: var(--font-main);
+    cursor: pointer;
+}
+
+.model-btn.active {
+    background-color: var(--yellow);
+}
+
+.model-btn.inactive {
+    color: var(--gray-dark);
+    border-color: var(--gray-dark);
+    background-color: #f9f9f9;
+}
+
+.vars-box {
+    flex: 3;
+    padding: 20px 10px;
+}
+
+/* Custom Tile Equation Engine */
+.equation {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.tile {
+    border: 1.5px solid var(--border-color);
+    padding: 4px 8px;
+    font-family: var(--font-main);
+    font-weight: 500;
+}
+
+.tile.yellow {
+    background-color: var(--yellow);
+}
+
+.tile.lightgray {
+    background-color: var(--gray-bg);
+}
+
+.tile.outline {
+    background-color: var(--bg-color);
+}
+
+.tile.yellow-fill {
+    background-color: var(--yellow);
+}
+
+.op, .bracket {
+    font-weight: 400;
+}
+
+.fraction {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.fraction hr {
+    width: 100%;
+    border: none;
+    border-top: 1.5px solid var(--border-color);
+}
+
+.fraction-bottom {
+    display: flex;
+    gap: 2px;
+}
+
+.fraction-inline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin: 0 5px;
+}
+
+.fraction-inline hr {
+    width: 100%;
+    border: none;
+    border-top: 1.5px solid var(--border-color);
+}
+
+.big-bracket {
+    font-size: 40px;
+    font-weight: 300;
+    line-height: 1;
+}
+
+/* Summary Row */
+.summary-row {
+    display: flex;
+    gap: 20px;
+}
+
+.summary-box {
+    flex: 1;
+    padding: 20px;
+}
+
+.yellow-bg {
+    background-color: var(--yellow);
+}
+
+.icons {
+    display: flex;
+    gap: 15px;
+}
+
+/* Three Column Layout */
+.three-col {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.col {
+    border: 1.5px solid var(--border-color);
+    padding: 15px;
+}
+
+.side-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.graph-col {
+    flex: 2;
+    background-color: var(--graph-bg);
+    position: relative;
+    padding: 0;
+}
+
+.graph-tag {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    border: 1.5px solid var(--border-color);
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border: 1.5px solid var(--border-color);
+    padding: 5px;
+    background-color: white;
+}
+
+.number {
+    font-size: 12px;
+    padding: 0 5px;
+}
+
+.circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    color: white;
+}
+
+.circle.up.active {
+    background-color: var(--green);
+}
+
+.circle.down.active {
+    background-color: var(--red);
+}
+
+.circle.minus.active {
+    background-color: #ffd700; /* yellow-ish warning */
+    color: black;
+}
+
+.circle.inactive {
+    background-color: var(--gray-dark);
+}
+
+.output-circles {
+    display: flex;
+    gap: 5px;
+}
+
+/* Footer */
+.footer-box {
+    border: 1.5px solid var(--border-color);
+    padding: 40px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.footer-box.small {
+    padding: 10px;
+}

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intuonomy - Intuition on the Economy</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <h1>Intuonomy</h1>
+                <p>Intuition on the Economy</p>
+            </div>
+            <div class="vector-logo">
+                Vector<br>Logo
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="tabs">
+            <button class="tab active">Visualize Models</button>
+            <button class="tab">My Models</button>
+            <button class="tab">Forum</button>
+        </nav>
+
+        <!-- Toggles Row -->
+        <div class="toggles-row">
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-group="run" data-val="short">Short Run</button> 
+                <span class="or">OR</span> 
+                <button class="toggle-btn" data-group="run" data-val="long">Long Run</button>
+            </div>
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-group="openness" data-val="closed">Closed</button> 
+                <span class="or">OR</span> 
+                <button class="toggle-btn" data-group="openness" data-val="open">Open</button>
+            </div>
+            <div class="toggle-group">
+                <button class="toggle-btn" data-group="size" data-val="big">Big</button> 
+                <span class="or">OR</span> 
+                <button class="toggle-btn active" data-group="size" data-val="small">Small</button>
+            </div>
+        </div>
+
+        <!-- Models and Variables Row -->
+        <div class="models-vars-row">
+            <div class="box models-box">
+                <div class="box-title">Models</div>
+                <div class="model-select">
+                    <button class="model-btn active" data-model="islm">IS-LM</button>
+                    <button class="model-btn inactive" data-model="aadd">AA-DD</button>
+                </div>
+            </div>
+            <div class="box vars-box">
+                <div class="box-title">Variables</div>
+                <div class="equation">
+                    <div class="tile yellow">C</div> <span class="op">+</span>
+                    <div class="tile yellow">I</div> <span class="op">+</span>
+                    <div class="tile lightgray">G</div> <span class="op">-</span>
+                    <span class="bracket">(</span> <div class="tile yellow">X</div> <span class="op">-</span> <div class="tile yellow">M</div> <span class="bracket">)</span>
+                    <span class="op">=</span> <div class="tile yellow">Y</div> <span class="op">=</span>
+                    <div class="fraction">
+                        <div class="tile lightgray">M</div>
+                        <hr>
+                        <div class="fraction-bottom">
+                            <div class="tile yellow">L</div> <div class="tile yellow">P</div>
+                        </div>
+                    </div>
+                    <span class="big-bracket">[</span>
+                    <div class="fraction-inline">
+                        <div class="tile yellow">R*</div> <span class="op">+</span> <div class="tile yellow">E*</div> <span class="op">-</span> <span>1</span>
+                        <hr>
+                        <div class="tile lightgray" style="margin: 0 auto; display: block; width: max-content;">E</div>
+                    </div>
+                    <span class="big-bracket">]</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Row -->
+        <div class="summary-row">
+            <div class="box summary-box yellow-bg">
+                <div class="box-title">Inputs</div>
+                <div class="icons">
+                    <div class="tile outline">M</div>
+                    <div class="tile outline">G</div>
+                </div>
+            </div>
+            <div class="box summary-box yellow-bg">
+                <div class="box-title">Outputs</div>
+                <div class="icons">
+                    <div class="tile outline">E</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Three Column Interactive Section -->
+        <div class="three-col">
+            <!-- Left Column: Inputs -->
+            <div class="col side-col">
+                <div class="control-row">
+                    <div class="number">1</div> 
+                    <div class="tile outline yellow-fill">M</div> 
+                    <button class="circle up" data-var="M" data-dir="up">↑</button> 
+                    <button class="circle down inactive" data-var="M" data-dir="down">↓</button>
+                </div>
+                <div class="control-row">
+                    <div class="number">2</div> 
+                    <div class="tile outline yellow-fill">G</div> 
+                    <button class="circle up inactive" data-var="G" data-dir="up">↑</button> 
+                    <button class="circle down inactive" data-var="G" data-dir="down">↓</button>
+                </div>
+            </div>
+            
+            <!-- Center Column: Graph -->
+            <div class="col graph-col">
+                <div class="graph-box">
+                    <div class="graph-tag" id="current-model-tag">AA-DD</div>
+                    <svg viewBox="0 0 400 350" width="100%" height="100%">
+                        <!-- Axes -->
+                        <line x1="60" y1="280" x2="360" y2="280" stroke="black" stroke-width="2" />
+                        <line x1="60" y1="280" x2="60" y2="40" stroke="black" stroke-width="2" />
+                        
+                        <!-- Axis Labels -->
+                        <rect x="320" y="290" width="30" height="30" fill="gray" stroke="black" />
+                        <text x="335" y="310" text-anchor="middle" fill="black" font-family="Montserrat" font-size="14">Y</text>
+                        
+                        <rect x="20" y="40" width="30" height="30" fill="gray" stroke="black" />
+                        <text x="35" y="60" text-anchor="middle" fill="black" font-family="Montserrat" font-size="14" id="y-axis-label">E</text>
+
+                        <!-- Guide Lines (Dotted) -->
+                        <g id="guide-lines" stroke="gray" stroke-dasharray="4,4" stroke-width="1.5">
+                            <line id="y-guide-1" x1="210" y1="160" x2="210" y2="280" />
+                            <line id="x-guide-1" x1="60" y1="160" x2="210" y2="160" />
+                            <line id="y-guide-2" x1="210" y1="160" x2="210" y2="280" opacity="0" />
+                            <line id="x-guide-2" x1="60" y1="160" x2="210" y2="160" opacity="0" />
+                        </g>
+
+                        <!-- Curves -->
+                        <g id="curves-group">
+                            <!-- Curve 1 (Downward) -->
+                            <line id="curve1" x1="100" y1="60" x2="320" y2="260" stroke="#3a3a3a" stroke-width="6" stroke-linecap="round" />
+                            
+                            <!-- Curve 2 (Upward) -->
+                            <line id="curve2" x1="100" y1="260" x2="320" y2="60" stroke="#684a68" stroke-width="6" stroke-linecap="round" />
+                            
+                            <!-- Phantom Curve for showing shifts -->
+                            <line id="curve1-ghost" x1="100" y1="60" x2="320" y2="260" stroke="#3a3a3a" stroke-width="6" stroke-linecap="round" opacity="0.3" />
+                        </g>
+
+                        <!-- Arrows indicating shift -->
+                        <g id="shift-arrows" stroke="black" stroke-width="1.5" fill="none" opacity="0">
+                            <!-- Arrow 1 -->
+                            <line id="arr1-line" x1="150" y1="150" x2="130" y2="130" />
+                            <polygon id="arr1-head" points="130,130 135,138 138,135" fill="black" />
+                            <!-- Arrow 2 -->
+                            <line id="arr2-line" x1="250" y1="250" x2="230" y2="230" />
+                            <polygon id="arr2-head" points="230,230 235,238 238,235" fill="black" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Right Column: Outputs -->
+            <div class="col side-col">
+                <div class="control-row">
+                    <div class="number">1</div> 
+                    <div class="tile outline yellow-fill" id="out-label-1">E</div> 
+                    <div class="output-circles" id="out-group-1">
+                        <div class="circle up active">↑</div> 
+                        <div class="circle minus inactive">━</div> 
+                        <div class="circle down inactive">↓</div>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <div class="number">2</div> 
+                    <div class="tile outline yellow-fill" id="out-label-2">Y</div> 
+                    <div class="output-circles" id="out-group-2">
+                        <div class="circle up inactive">↑</div> 
+                        <div class="circle minus active">━</div> 
+                        <div class="circle down inactive">↓</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer-box">Ads?</div>
+        <div class="footer-box small">Website Stuff</div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
