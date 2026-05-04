@@ -255,9 +255,8 @@ function updateGraph() {
     if (shift1 !== 0) {
         ghost.setAttribute('opacity', '0.3');
         shiftArrows.setAttribute('opacity', '1');
-        const dx = shift1 > 0 ? 20 : -20;
-        document.getElementById('arr1-line').setAttribute('x2', 150 + dx);
-        document.getElementById('arr2-line').setAttribute('x2', 250 + dx);
+        document.getElementById('arr1-line').setAttribute('x2', 170 + shift1);
+        document.getElementById('arr2-line').setAttribute('x2', 250 + shift1);
     } else {
         ghost.setAttribute('opacity', '0');
         shiftArrows.setAttribute('opacity', '0');
@@ -267,9 +266,8 @@ function updateGraph() {
         ghost2El.setAttribute('opacity', '0.3');
         if (shiftArrows2) {
             shiftArrows2.setAttribute('opacity', '1');
-            const dx = shift2 > 0 ? 20 : -20;
-            document.getElementById('arr3-line').setAttribute('x2', 150 + dx);
-            document.getElementById('arr4-line').setAttribute('x2', 250 + dx);
+            document.getElementById('arr3-line').setAttribute('x2', 170 + shift2);
+            document.getElementById('arr4-line').setAttribute('x2', 250 + shift2);
         }
     } else {
         ghost2El.setAttribute('opacity', '0');
