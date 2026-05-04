@@ -218,9 +218,9 @@ function updateGraph() {
     if (!ghost2) {
         const newGhost = document.createElementNS("http://www.w3.org/2000/svg", "line");
         newGhost.setAttribute("id", "curve2-ghost");
-        newGhost.setAttribute("x1", "100");
+        newGhost.setAttribute("x1", "110");
         newGhost.setAttribute("y1", "260");
-        newGhost.setAttribute("x2", "320");
+        newGhost.setAttribute("x2", "310");
         newGhost.setAttribute("y2", "60");
         newGhost.setAttribute("stroke", "#684a68");
         newGhost.setAttribute("stroke-width", "6");
@@ -243,13 +243,14 @@ function updateGraph() {
     }
     
     // Hardcode base coordinates instead of transforms to ensure it works across all SVGs properly
-    curve1.setAttribute('x1', 100 + shift1);
-    curve1.setAttribute('x2', 320 + shift1);
+    curve1.setAttribute('x1', 110 + shift1);
+    curve1.setAttribute('x2', 310 + shift1);
     
-    curve2.setAttribute('x1', 100 + shift2);
-    curve2.setAttribute('x2', 320 + shift2);
+    curve2.setAttribute('x1', 110 + shift2);
+    curve2.setAttribute('x2', 310 + shift2);
     
     const shiftArrows = document.getElementById('shift-arrows');
+    const shiftArrows2 = document.getElementById('shift-arrows-2');
     
     if (shift1 !== 0) {
         ghost.setAttribute('opacity', '0.3');
@@ -264,8 +265,15 @@ function updateGraph() {
     
     if (shift2 !== 0) {
         ghost2El.setAttribute('opacity', '0.3');
+        if (shiftArrows2) {
+            shiftArrows2.setAttribute('opacity', '1');
+            const dx = shift2 > 0 ? 20 : -20;
+            document.getElementById('arr3-line').setAttribute('x2', 150 + dx);
+            document.getElementById('arr4-line').setAttribute('x2', 250 + dx);
+        }
     } else {
         ghost2El.setAttribute('opacity', '0');
+        if (shiftArrows2) shiftArrows2.setAttribute('opacity', '0');
     }
     
     const newX = BASE_X + (shift1 + shift2) / 2;
