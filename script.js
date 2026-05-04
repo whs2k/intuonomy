@@ -1,6 +1,6 @@
 // State Management
 const state = {
-    model: 'aadd', // 'islm' or 'aadd'
+    model: 'aadd', // 'islm' or 'aadd', starts as islm conceptually? Wait, HTML has islm active.
     variables: {
         M: 0, // Shift amount
         G: 0
@@ -19,10 +19,79 @@ const state = {
 const BASE_X = 210;
 const BASE_Y = 160;
 
+const FORMULAS = {
+    islm: `
+        <div class="tile yellow">Y</div> <span class="op">=</span>
+        <div class="tile yellow">C</div> <span class="op">+</span>
+        <div class="tile yellow">I</div> <span class="op">+</span>
+        <div class="tile lightgray">G</div> <span class="op">+</span>
+        <div class="tile yellow">NX</div>
+        <span style="margin: 0 15px;"></span>
+        <div class="fraction">
+            <div class="tile lightgray">M</div>
+            <hr>
+            <div class="fraction-bottom">
+                <div class="tile yellow">P</div>
+            </div>
+        </div>
+        <span class="op">=</span>
+        <div class="tile yellow">L</div><span class="bracket">(</span><div class="tile yellow">R</div><span class="op">,</span><div class="tile yellow">Y</div><span class="bracket">)</span>
+    `,
+    aadd: `
+        <div class="tile yellow">C</div> <span class="op">+</span>
+        <div class="tile yellow">I</div> <span class="op">+</span>
+        <div class="tile lightgray">G</div> <span class="op">-</span>
+        <span class="bracket">(</span> <div class="tile yellow">X</div> <span class="op">-</span> <div class="tile yellow">M</div> <span class="bracket">)</span>
+        <span class="op">=</span> <div class="tile yellow">Y</div> <span class="op">=</span>
+        <div class="fraction">
+            <div class="tile lightgray">M</div>
+            <hr>
+            <div class="fraction-bottom">
+                <div class="tile yellow">L</div> <div class="tile yellow">P</div>
+            </div>
+        </div>
+        <span class="big-bracket">[</span>
+        <div class="fraction-inline">
+            <div class="tile yellow">R*</div> <span class="op">+</span> <div class="tile yellow">E*</div> <span class="op">-</span> <span>1</span>
+            <hr>
+            <div class="tile lightgray" style="margin: 0 auto; display: block; width: max-content;">E</div>
+        </div>
+        <span class="big-bracket">]</span>
+    `
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Determine initial model from HTML active button
+    const activeModelBtn = document.querySelector('.model-btn.active');
+    if (activeModelBtn) state.model = activeModelBtn.dataset.model;
+    
+    updateUIForModel();
     attachEventListeners();
     updateGraph();
 });
+
+function updateUIForModel() {
+    // Update Equation
+    document.getElementById('equation-container').innerHTML = FORMULAS[state.model];
+    
+    // Update Tags & Labels
+    document.getElementById('current-model-tag').textContent = state.model === 'islm' ? 'IS-LM' : 'AA-DD';
+    document.getElementById('y-axis-label').textContent = state.model === 'islm' ? 'R' : 'E';
+    document.getElementById('out-label-1').textContent = state.model === 'islm' ? 'R' : 'E';
+    
+    // Update Summary Outputs
+    document.getElementById('summary-outputs').innerHTML = `<div class="tile outline">${state.model === 'islm' ? 'R' : 'E'}</div>`;
+    
+    // Reset shifts on model change
+    state.variables.M = 0;
+    state.variables.G = 0;
+    state.activeArrows.M = null;
+    state.activeArrows.G = null;
+    
+    updateInputArrows();
+    calculateOutputs();
+    updateOutputArrows();
+}
 
 function attachEventListeners() {
     // Model Selection
@@ -32,23 +101,13 @@ function attachEventListeners() {
                 b.classList.remove('active');
                 b.classList.add('inactive');
             });
-            e.target.classList.add('active');
-            e.target.classList.remove('inactive');
+            const target = e.currentTarget;
+            target.classList.add('active');
+            target.classList.remove('inactive');
             
-            state.model = e.target.dataset.model;
-            document.getElementById('current-model-tag').textContent = state.model === 'islm' ? 'IS-LM' : 'AA-DD';
-            document.getElementById('y-axis-label').textContent = state.model === 'islm' ? 'R' : 'E';
-            document.getElementById('out-label-1').textContent = state.model === 'islm' ? 'R' : 'E';
+            state.model = target.dataset.model;
             
-            // Reset shifts on model change
-            state.variables.M = 0;
-            state.variables.G = 0;
-            state.activeArrows.M = null;
-            state.activeArrows.G = null;
-            
-            updateInputArrows();
-            calculateOutputs();
-            updateOutputArrows();
+            updateUIForModel();
             updateGraph();
         });
     });
@@ -58,8 +117,9 @@ function attachEventListeners() {
         if (!btn.hasAttribute('data-var')) return; // skip output buttons
         
         btn.addEventListener('click', (e) => {
-            const variable = e.target.dataset.var; // M or G
-            const dir = e.target.dataset.dir; // up or down
+            const target = e.currentTarget;
+            const variable = target.dataset.var; // M or G
+            const dir = target.dataset.dir; // up or down
             
             if (state.activeArrows[variable] === dir) {
                 // Toggle off
@@ -83,13 +143,15 @@ function updateInputArrows() {
         const upBtn = document.querySelector(`button[data-var="${v}"][data-dir="up"]`);
         const downBtn = document.querySelector(`button[data-var="${v}"][data-dir="down"]`);
         
-        upBtn.className = 'circle up inactive';
-        downBtn.className = 'circle down inactive';
-        
-        if (state.activeArrows[v] === 'up') {
-            upBtn.className = 'circle up active';
-        } else if (state.activeArrows[v] === 'down') {
-            downBtn.className = 'circle down active';
+        if (upBtn && downBtn) {
+            upBtn.className = 'circle up inactive';
+            downBtn.className = 'circle down inactive';
+            
+            if (state.activeArrows[v] === 'up') {
+                upBtn.className = 'circle up active';
+            } else if (state.activeArrows[v] === 'down') {
+                downBtn.className = 'circle down active';
+            }
         }
     });
 }
@@ -98,42 +160,27 @@ function calculateOutputs() {
     const dG = state.variables.G;
     const dM = state.variables.M;
     
-    // Model specific logic
     if (state.model === 'aadd') {
-        // AA-DD Model
-        // 1: E, 2: Y
-        
-        // G up shifts DD right
-        // M up shifts AA right
         const shiftDD = dG;
         const shiftAA = dM;
-        
-        // E (y-axis) changes
         const dE = - (shiftDD - shiftAA) / 2;
         if (dE > 5) state.outputs[1] = 'down';
-        else if (dE < -5) state.outputs[1] = 'up'; // Wait, in standard AA-DD, E axis has exchange rate. Up is depreciation.
+        else if (dE < -5) state.outputs[1] = 'up';
         else state.outputs[1] = 'minus';
         
-        // Y (x-axis) changes
         const dY = (shiftDD + shiftAA) / 2;
         if (dY > 5) state.outputs[2] = 'up';
         else if (dY < -5) state.outputs[2] = 'down';
         else state.outputs[2] = 'minus';
         
     } else {
-        // IS-LM Model
-        // 1: R, 2: Y
-        
         const shiftIS = dG;
         const shiftLM = dM;
-        
-        // R (y-axis) changes (axis visually goes down for higher values? No, y=0 is top. so y increases going down. But R is up on y axis)
         const dR = - (shiftIS - shiftLM) / 2; 
         if (dR < -5) state.outputs[1] = 'up';
         else if (dR > 5) state.outputs[1] = 'down';
         else state.outputs[1] = 'minus';
         
-        // Y changes
         const dY = (shiftIS + shiftLM) / 2;
         if (dY > 5) state.outputs[2] = 'up';
         else if (dY < -5) state.outputs[2] = 'down';
@@ -144,6 +191,7 @@ function calculateOutputs() {
 function updateOutputArrows() {
     [1, 2].forEach(num => {
         const group = document.getElementById(`out-group-${num}`);
+        if (!group) return;
         const stateVal = state.outputs[num];
         
         const up = group.querySelector('.up');
@@ -161,68 +209,84 @@ function updateOutputArrows() {
 }
 
 function updateGraph() {
-    const curve1 = document.getElementById('curve1'); // Downward (AA or IS)
-    const curve2 = document.getElementById('curve2'); // Upward (DD or LM)
+    const curve1 = document.getElementById('curve1'); // Downward
+    const curve2 = document.getElementById('curve2'); // Upward
     const ghost = document.getElementById('curve1-ghost');
+    const ghost2 = document.getElementById('curve2-ghost');
     
-    // Default stroke colors based on wireframe
-    curve1.setAttribute('stroke', '#3a3a3a'); // dark gray
-    curve2.setAttribute('stroke', '#684a68'); // purple
-    ghost.setAttribute('stroke', '#3a3a3a');
+    // Create ghost2 if it doesn't exist
+    if (!ghost2) {
+        const newGhost = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        newGhost.setAttribute("id", "curve2-ghost");
+        newGhost.setAttribute("x1", "100");
+        newGhost.setAttribute("y1", "260");
+        newGhost.setAttribute("x2", "320");
+        newGhost.setAttribute("y2", "60");
+        newGhost.setAttribute("stroke", "#684a68");
+        newGhost.setAttribute("stroke-width", "6");
+        newGhost.setAttribute("stroke-linecap", "round");
+        newGhost.setAttribute("opacity", "0");
+        document.getElementById("curves-group").appendChild(newGhost);
+    }
     
-    let shift1 = 0; // shift for downward curve
-    let shift2 = 0; // shift for upward curve
+    const ghost2El = document.getElementById('curve2-ghost');
+    
+    let shift1 = 0; 
+    let shift2 = 0; 
     
     if (state.model === 'aadd') {
-        shift1 = state.variables.M; // AA shifts with M
-        shift2 = state.variables.G; // DD shifts with G
+        shift1 = state.variables.M; 
+        shift2 = state.variables.G; 
     } else {
-        shift1 = state.variables.G; // IS shifts with G
-        shift2 = state.variables.M; // LM shifts with M
+        shift1 = state.variables.G; 
+        shift2 = state.variables.M; 
     }
     
-    // Apply transforms
-    curve1.style.transform = `translateX(${shift1}px)`;
-    curve2.style.transform = `translateX(${shift2}px)`;
+    // Hardcode base coordinates instead of transforms to ensure it works across all SVGs properly
+    curve1.setAttribute('x1', 100 + shift1);
+    curve1.setAttribute('x2', 320 + shift1);
     
-    // Handle ghost and arrows (if there is a shift in curve 1)
+    curve2.setAttribute('x1', 100 + shift2);
+    curve2.setAttribute('x2', 320 + shift2);
+    
     const shiftArrows = document.getElementById('shift-arrows');
+    
     if (shift1 !== 0) {
-        ghost.style.opacity = '0.3';
-        shiftArrows.style.opacity = '1';
-        
-        // Position arrows to show shift direction
+        ghost.setAttribute('opacity', '0.3');
+        shiftArrows.setAttribute('opacity', '1');
         const dx = shift1 > 0 ? 20 : -20;
-        const dy = 0;
-        
         document.getElementById('arr1-line').setAttribute('x2', 150 + dx);
-        document.getElementById('arr1-line').setAttribute('y2', 150 + dy);
-        
         document.getElementById('arr2-line').setAttribute('x2', 250 + dx);
-        document.getElementById('arr2-line').setAttribute('y2', 250 + dy);
-        
     } else {
-        ghost.style.opacity = '0';
-        shiftArrows.style.opacity = '0';
+        ghost.setAttribute('opacity', '0');
+        shiftArrows.setAttribute('opacity', '0');
     }
     
-    // Update Intersection Guides
+    if (shift2 !== 0) {
+        ghost2El.setAttribute('opacity', '0.3');
+    } else {
+        ghost2El.setAttribute('opacity', '0');
+    }
+    
     const newX = BASE_X + (shift1 + shift2) / 2;
     const newY = BASE_Y - (shift1 - shift2) / 2;
     
-    document.getElementById('y-guide-2').setAttribute('x1', newX);
-    document.getElementById('y-guide-2').setAttribute('y1', newY);
-    document.getElementById('y-guide-2').setAttribute('x2', newX);
+    const yGuide2 = document.getElementById('y-guide-2');
+    const xGuide2 = document.getElementById('x-guide-2');
     
-    document.getElementById('x-guide-2').setAttribute('x1', 60);
-    document.getElementById('x-guide-2').setAttribute('y1', newY);
-    document.getElementById('x-guide-2').setAttribute('x2', newX);
+    yGuide2.setAttribute('x1', newX);
+    yGuide2.setAttribute('y1', newY);
+    yGuide2.setAttribute('x2', newX);
+    
+    xGuide2.setAttribute('x1', 60);
+    xGuide2.setAttribute('y1', newY);
+    xGuide2.setAttribute('x2', newX);
     
     if (shift1 !== 0 || shift2 !== 0) {
-        document.getElementById('y-guide-2').setAttribute('opacity', '1');
-        document.getElementById('x-guide-2').setAttribute('opacity', '1');
+        yGuide2.setAttribute('opacity', '1');
+        xGuide2.setAttribute('opacity', '1');
     } else {
-        document.getElementById('y-guide-2').setAttribute('opacity', '0');
-        document.getElementById('x-guide-2').setAttribute('opacity', '0');
+        yGuide2.setAttribute('opacity', '0');
+        xGuide2.setAttribute('opacity', '0');
     }
 }

@@ -61,26 +61,8 @@
             </div>
             <div class="box vars-box">
                 <div class="box-title">Variables</div>
-                <div class="equation">
-                    <div class="tile yellow">C</div> <span class="op">+</span>
-                    <div class="tile yellow">I</div> <span class="op">+</span>
-                    <div class="tile lightgray">G</div> <span class="op">-</span>
-                    <span class="bracket">(</span> <div class="tile yellow">X</div> <span class="op">-</span> <div class="tile yellow">M</div> <span class="bracket">)</span>
-                    <span class="op">=</span> <div class="tile yellow">Y</div> <span class="op">=</span>
-                    <div class="fraction">
-                        <div class="tile lightgray">M</div>
-                        <hr>
-                        <div class="fraction-bottom">
-                            <div class="tile yellow">L</div> <div class="tile yellow">P</div>
-                        </div>
-                    </div>
-                    <span class="big-bracket">[</span>
-                    <div class="fraction-inline">
-                        <div class="tile yellow">R*</div> <span class="op">+</span> <div class="tile yellow">E*</div> <span class="op">-</span> <span>1</span>
-                        <hr>
-                        <div class="tile lightgray" style="margin: 0 auto; display: block; width: max-content;">E</div>
-                    </div>
-                    <span class="big-bracket">]</span>
+                <div class="equation" id="equation-container">
+                    <!-- Dynamic formulas will be injected here -->
                 </div>
             </div>
         </div>
@@ -89,14 +71,14 @@
         <div class="summary-row">
             <div class="box summary-box yellow-bg">
                 <div class="box-title">Inputs</div>
-                <div class="icons">
+                <div class="icons" id="summary-inputs">
                     <div class="tile outline">M</div>
                     <div class="tile outline">G</div>
                 </div>
             </div>
             <div class="box summary-box yellow-bg">
                 <div class="box-title">Outputs</div>
-                <div class="icons">
+                <div class="icons" id="summary-outputs">
                     <div class="tile outline">E</div>
                 </div>
             </div>
