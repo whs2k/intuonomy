@@ -72,14 +72,13 @@
             <div class="box summary-box yellow-bg">
                 <div class="box-title">Inputs</div>
                 <div class="icons" id="summary-inputs">
-                    <div class="tile outline">M</div>
-                    <div class="tile outline">G</div>
+                    <!-- Dynamically populated -->
                 </div>
             </div>
             <div class="box summary-box yellow-bg">
                 <div class="box-title">Outputs</div>
                 <div class="icons" id="summary-outputs">
-                    <div class="tile outline">E</div>
+                    <!-- Dynamically populated -->
                 </div>
             </div>
         </div>
@@ -87,19 +86,8 @@
         <!-- Three Column Interactive Section -->
         <div class="three-col">
             <!-- Left Column: Inputs -->
-            <div class="col side-col">
-                <div class="control-row">
-                    <div class="number">1</div> 
-                    <div class="tile outline yellow-fill">M</div> 
-                    <button class="circle up" data-var="M" data-dir="up">↑</button> 
-                    <button class="circle down inactive" data-var="M" data-dir="down">↓</button>
-                </div>
-                <div class="control-row">
-                    <div class="number">2</div> 
-                    <div class="tile outline yellow-fill">G</div> 
-                    <button class="circle up inactive" data-var="G" data-dir="up">↑</button> 
-                    <button class="circle down inactive" data-var="G" data-dir="down">↓</button>
-                </div>
+            <div class="col side-col" id="left-inputs-col">
+                <!-- Dynamically populated -->
             </div>
             
             <!-- Center Column: Graph -->
@@ -162,25 +150,8 @@
             </div>
 
             <!-- Right Column: Outputs -->
-            <div class="col side-col">
-                <div class="control-row">
-                    <div class="number">1</div> 
-                    <div class="tile outline yellow-fill" id="out-label-1">E</div> 
-                    <div class="output-circles" id="out-group-1">
-                        <div class="circle up active">↑</div> 
-                        <div class="circle minus inactive">━</div> 
-                        <div class="circle down inactive">↓</div>
-                    </div>
-                </div>
-                <div class="control-row">
-                    <div class="number">2</div> 
-                    <div class="tile outline yellow-fill" id="out-label-2">Y</div> 
-                    <div class="output-circles" id="out-group-2">
-                        <div class="circle up inactive">↑</div> 
-                        <div class="circle minus active">━</div> 
-                        <div class="circle down inactive">↓</div>
-                    </div>
-                </div>
+            <div class="col side-col" id="right-outputs-col">
+                <!-- Dynamically populated -->
             </div>
         </div>
 

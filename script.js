@@ -1,18 +1,10 @@
 // State Management
 const state = {
-    model: 'aadd', // 'islm' or 'aadd', starts as islm conceptually? Wait, HTML has islm active.
-    variables: {
-        M: 0, // Shift amount
-        G: 0
-    },
-    activeArrows: {
-        M: null, // 'up', 'down', or null
-        G: null
-    },
-    outputs: {
-        1: 'minus', // 'up', 'minus', 'down'
-        2: 'minus'
-    }
+    model: 'islm', 
+    selectedInputs: ['M', 'G'], 
+    selectedOutputs: ['R', 'Y'],
+    variables: {}, 
+    activeArrows: {} 
 };
 
 // Base Intersections
@@ -21,40 +13,40 @@ const BASE_Y = 160;
 
 const FORMULAS = {
     islm: `
-        <div class="tile yellow">Y</div> <span class="op">=</span>
-        <div class="tile yellow">C</div> <span class="op">+</span>
-        <div class="tile yellow">I</div> <span class="op">+</span>
-        <div class="tile lightgray">G</div> <span class="op">+</span>
-        <div class="tile yellow">NX</div>
+        <div class="tile yellow cursor-pointer" data-var="Y" data-type="en">Y</div> <span class="op">=</span>
+        <div class="tile yellow cursor-pointer" data-var="C" data-type="ex">C</div> <span class="op">+</span>
+        <div class="tile yellow cursor-pointer" data-var="I" data-type="ex">I</div> <span class="op">+</span>
+        <div class="tile lightgray cursor-pointer" data-var="G" data-type="ex">G</div> <span class="op">+</span>
+        <div class="tile yellow cursor-pointer" data-var="NX" data-type="ex">NX</div>
         <span style="margin: 0 15px;"></span>
         <div class="fraction">
-            <div class="tile lightgray">M</div>
+            <div class="tile lightgray cursor-pointer" data-var="M" data-type="ex">M</div>
             <hr>
             <div class="fraction-bottom">
-                <div class="tile yellow">P</div>
+                <div class="tile yellow cursor-pointer" data-var="P" data-type="ex">P</div>
             </div>
         </div>
         <span class="op">=</span>
-        <div class="tile yellow">L</div><span class="bracket">(</span><div class="tile yellow">R</div><span class="op">,</span><div class="tile yellow">Y</div><span class="bracket">)</span>
+        <div class="tile yellow">L</div><span class="bracket">(</span><div class="tile yellow cursor-pointer" data-var="R" data-type="en">R</div><span class="op">,</span><div class="tile yellow cursor-pointer" data-var="Y" data-type="en">Y</div><span class="bracket">)</span>
     `,
     aadd: `
-        <div class="tile yellow">C</div> <span class="op">+</span>
-        <div class="tile yellow">I</div> <span class="op">+</span>
-        <div class="tile lightgray">G</div> <span class="op">-</span>
-        <span class="bracket">(</span> <div class="tile yellow">X</div> <span class="op">-</span> <div class="tile yellow">M</div> <span class="bracket">)</span>
-        <span class="op">=</span> <div class="tile yellow">Y</div> <span class="op">=</span>
+        <div class="tile yellow cursor-pointer" data-var="C" data-type="ex">C</div> <span class="op">+</span>
+        <div class="tile yellow cursor-pointer" data-var="I" data-type="ex">I</div> <span class="op">+</span>
+        <div class="tile lightgray cursor-pointer" data-var="G" data-type="ex">G</div> <span class="op">+</span>
+        <div class="tile yellow cursor-pointer" data-var="NX" data-type="ex">NX</div>
+        <span class="op">=</span> <div class="tile yellow cursor-pointer" data-var="Y" data-type="en">Y</div> <span class="op">=</span>
         <div class="fraction">
-            <div class="tile lightgray">M</div>
+            <div class="tile lightgray cursor-pointer" data-var="M" data-type="ex">M</div>
             <hr>
             <div class="fraction-bottom">
-                <div class="tile yellow">L</div> <div class="tile yellow">P</div>
+                <div class="tile yellow">L</div> <div class="tile yellow cursor-pointer" data-var="P" data-type="ex">P</div>
             </div>
         </div>
         <span class="big-bracket">[</span>
         <div class="fraction-inline">
-            <div class="tile yellow">R*</div> <span class="op">+</span> <div class="tile yellow">E*</div> <span class="op">-</span> <span>1</span>
+            <div class="tile yellow cursor-pointer" data-var="R*" data-type="ex">R*</div> <span class="op">+</span> <div class="tile yellow cursor-pointer" data-var="E*" data-type="ex">E*</div> <span class="op">-</span> <span>1</span>
             <hr>
-            <div class="tile lightgray" style="margin: 0 auto; display: block; width: max-content;">E</div>
+            <div class="tile lightgray cursor-pointer" data-var="E" data-type="en" style="margin: 0 auto; display: block; width: max-content;">E</div>
         </div>
         <span class="big-bracket">]</span>
     `
@@ -65,33 +57,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const activeModelBtn = document.querySelector('.model-btn.active');
     if (activeModelBtn) state.model = activeModelBtn.dataset.model;
     
+    // Set initial default selections based on model
+    if (state.model === 'islm') {
+        state.selectedInputs = ['M', 'G'];
+        state.selectedOutputs = ['R', 'Y'];
+    } else {
+        state.selectedInputs = ['M', 'G'];
+        state.selectedOutputs = ['E', 'Y'];
+    }
+    
     updateUIForModel();
     attachEventListeners();
     updateGraph();
 });
-
-function updateUIForModel() {
-    // Update Equation
-    document.getElementById('equation-container').innerHTML = FORMULAS[state.model];
-    
-    // Update Tags & Labels
-    document.getElementById('current-model-tag').textContent = state.model === 'islm' ? 'IS-LM' : 'AA-DD';
-    document.getElementById('y-axis-label').textContent = state.model === 'islm' ? 'R' : 'E';
-    document.getElementById('out-label-1').textContent = state.model === 'islm' ? 'R' : 'E';
-    
-    // Update Summary Outputs
-    document.getElementById('summary-outputs').innerHTML = `<div class="tile outline">${state.model === 'islm' ? 'R' : 'E'}</div>`;
-    
-    // Reset shifts on model change
-    state.variables.M = 0;
-    state.variables.G = 0;
-    state.activeArrows.M = null;
-    state.activeArrows.G = null;
-    
-    updateInputArrows();
-    calculateOutputs();
-    updateOutputArrows();
-}
 
 function attachEventListeners() {
     // Model Selection
@@ -107,22 +85,87 @@ function attachEventListeners() {
             
             state.model = target.dataset.model;
             
+            // Reset to defaults on model switch
+            if (state.model === 'islm') {
+                state.selectedInputs = ['M', 'G'];
+                state.selectedOutputs = ['R', 'Y'];
+            } else {
+                state.selectedInputs = ['M', 'G'];
+                state.selectedOutputs = ['E', 'Y'];
+            }
+            state.variables = {};
+            state.activeArrows = {};
+            
             updateUIForModel();
             updateGraph();
         });
     });
+}
 
-    // Input Buttons
-    document.querySelectorAll('.side-col .circle').forEach(btn => {
-        if (!btn.hasAttribute('data-var')) return; // skip output buttons
+function updateUIForModel() {
+    // Update Equation
+    document.getElementById('equation-container').innerHTML = FORMULAS[state.model];
+    
+    // Attach click listeners to new equation tiles
+    document.querySelectorAll('#equation-container .cursor-pointer').forEach(tile => {
+        tile.addEventListener('click', (e) => {
+            const v = e.currentTarget.dataset.var;
+            const t = e.currentTarget.dataset.type;
+            
+            if (t === 'ex') {
+                if (state.selectedInputs.includes(v)) {
+                    state.selectedInputs = state.selectedInputs.filter(x => x !== v);
+                } else {
+                    state.selectedInputs.push(v);
+                    state.variables[v] = 0;
+                    state.activeArrows[v] = null;
+                }
+            } else if (t === 'en') {
+                if (state.selectedOutputs.includes(v)) {
+                    state.selectedOutputs = state.selectedOutputs.filter(x => x !== v);
+                } else {
+                    state.selectedOutputs.push(v);
+                }
+            }
+            renderDynamicColumns();
+            updateGraph();
+        });
+    });
+    
+    // Update Tags & Labels
+    document.getElementById('current-model-tag').textContent = state.model === 'islm' ? 'IS-LM' : 'AA-DD';
+    document.getElementById('y-axis-label').textContent = state.model === 'islm' ? 'R' : 'E';
+    
+    renderDynamicColumns();
+}
+
+function renderDynamicColumns() {
+    // 1. Render Left Inputs Column
+    const leftCol = document.getElementById('left-inputs-col');
+    let leftHtml = '';
+    state.selectedInputs.forEach((v, index) => {
+        const isActiveUp = state.activeArrows[v] === 'up' ? 'active' : 'inactive';
+        const isActiveDown = state.activeArrows[v] === 'down' ? 'active' : 'inactive';
         
+        leftHtml += `
+            <div class="control-row">
+                <div class="number">${index + 1}</div> 
+                <div class="tile outline yellow-fill">${v}</div> 
+                <button class="circle up ${isActiveUp}" data-var="${v}" data-dir="up">↑</button> 
+                <button class="circle down ${isActiveDown}" data-var="${v}" data-dir="down">↓</button>
+            </div>
+        `;
+    });
+    leftCol.innerHTML = leftHtml;
+    
+    // Attach event listeners to new input arrows
+    leftCol.querySelectorAll('.circle').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget;
-            const variable = target.dataset.var; // M or G
-            const dir = target.dataset.dir; // up or down
+            const variable = target.dataset.var;
+            const dir = target.dataset.dir;
             
             if (state.activeArrows[variable] === dir) {
-                // Toggle off
                 state.activeArrows[variable] = null;
                 state.variables[variable] = 0;
             } else {
@@ -130,92 +173,109 @@ function attachEventListeners() {
                 state.variables[variable] = dir === 'up' ? 20 : -20;
             }
             
-            updateInputArrows();
-            calculateOutputs();
-            updateOutputArrows();
+            renderDynamicColumns(); // Re-render to update classes
             updateGraph();
         });
     });
-}
 
-function updateInputArrows() {
-    ['M', 'G'].forEach(v => {
-        const upBtn = document.querySelector(`button[data-var="${v}"][data-dir="up"]`);
-        const downBtn = document.querySelector(`button[data-var="${v}"][data-dir="down"]`);
+    // 2. Render Right Outputs Column
+    const rightCol = document.getElementById('right-outputs-col');
+    let rightHtml = '';
+    
+    // Calculate theoretical shifts first
+    const shifts = calculateOutputs();
+    
+    state.selectedOutputs.forEach((v, index) => {
+        const val = shifts[v] || 'minus';
+        const upClass = val === 'up' ? 'active' : 'inactive';
+        const minusClass = val === 'minus' ? 'active' : 'inactive';
+        const downClass = val === 'down' ? 'active' : 'inactive';
         
-        if (upBtn && downBtn) {
-            upBtn.className = 'circle up inactive';
-            downBtn.className = 'circle down inactive';
-            
-            if (state.activeArrows[v] === 'up') {
-                upBtn.className = 'circle up active';
-            } else if (state.activeArrows[v] === 'down') {
-                downBtn.className = 'circle down active';
-            }
+        rightHtml += `
+            <div class="control-row">
+                <div class="number">${index + 1}</div> 
+                <div class="tile outline yellow-fill">${v}</div> 
+                <div class="output-circles">
+                    <div class="circle up ${upClass}">↑</div> 
+                    <div class="circle minus ${minusClass}">━</div> 
+                    <div class="circle down ${downClass}">↓</div>
+                </div>
+            </div>
+        `;
+    });
+    rightCol.innerHTML = rightHtml;
+    
+    // 3. Update Summary Boxes
+    document.getElementById('summary-inputs').innerHTML = state.selectedInputs.map(v => `<div class="tile outline">${v}</div>`).join('');
+    document.getElementById('summary-outputs').innerHTML = state.selectedOutputs.map(v => `<div class="tile outline">${v}</div>`).join('');
+    
+    // Highlight equation tiles that are selected
+    document.querySelectorAll('#equation-container .cursor-pointer').forEach(tile => {
+        const v = tile.dataset.var;
+        if (state.selectedInputs.includes(v) || state.selectedOutputs.includes(v)) {
+            tile.style.border = "2px solid #333";
+            tile.style.boxShadow = "2px 2px 0px rgba(0,0,0,0.5)";
+        } else {
+            tile.style.border = "1px solid var(--border-color)";
+            tile.style.boxShadow = "none";
         }
     });
 }
 
 function calculateOutputs() {
-    const dG = state.variables.G;
-    const dM = state.variables.M;
+    const dC = state.variables.C || 0;
+    const dI = state.variables.I || 0;
+    const dG = state.variables.G || 0;
+    const dNX = state.variables.NX || 0;
+    
+    const dM = state.variables.M || 0;
+    const dP = state.variables.P || 0;
+    const dRstar = state.variables['R*'] || 0;
+    const dEstar = state.variables['E*'] || 0;
+    
+    let shift1 = 0; 
+    let shift2 = 0; 
     
     if (state.model === 'aadd') {
-        const shiftDD = dG;
-        const shiftAA = dM;
-        const dE = - (shiftDD - shiftAA) / 2;
-        if (dE > 5) state.outputs[1] = 'down';
-        else if (dE < -5) state.outputs[1] = 'up';
-        else state.outputs[1] = 'minus';
-        
-        const dY = (shiftDD + shiftAA) / 2;
-        if (dY > 5) state.outputs[2] = 'up';
-        else if (dY < -5) state.outputs[2] = 'down';
-        else state.outputs[2] = 'minus';
-        
+        shift1 = dC + dI + dG + dNX; // DD curve shifts right
+        shift2 = dM - dP + dRstar + dEstar; // AA curve shifts right
     } else {
-        const shiftIS = dG;
-        const shiftLM = dM;
-        const dR = - (shiftIS - shiftLM) / 2; 
-        if (dR < -5) state.outputs[1] = 'up';
-        else if (dR > 5) state.outputs[1] = 'down';
-        else state.outputs[1] = 'minus';
-        
-        const dY = (shiftIS + shiftLM) / 2;
-        if (dY > 5) state.outputs[2] = 'up';
-        else if (dY < -5) state.outputs[2] = 'down';
-        else state.outputs[2] = 'minus';
+        shift1 = dC + dI + dG + dNX; // IS curve shifts right
+        shift2 = dM - dP; // LM curve shifts right
     }
-}
-
-function updateOutputArrows() {
-    [1, 2].forEach(num => {
-        const group = document.getElementById(`out-group-${num}`);
-        if (!group) return;
-        const stateVal = state.outputs[num];
-        
-        const up = group.querySelector('.up');
-        const minus = group.querySelector('.minus');
-        const down = group.querySelector('.down');
-        
-        up.className = 'circle up inactive';
-        minus.className = 'circle minus inactive';
-        down.className = 'circle down inactive';
-        
-        if (stateVal === 'up') up.className = 'circle up active';
-        else if (stateVal === 'minus') minus.className = 'circle minus active';
-        else if (stateVal === 'down') down.className = 'circle down active';
-    });
+    
+    const dY_val = (shift1 + shift2) / 2;
+    const dVert_val = (shift1 - shift2) / 2; // For IS-LM this is dR, for AA-DD this is dE
+    
+    const results = {};
+    
+    // Convert numerical shift to 'up', 'down', 'minus' state
+    if (dY_val > 5) results['Y'] = 'up';
+    else if (dY_val < -5) results['Y'] = 'down';
+    else results['Y'] = 'minus';
+    
+    if (dVert_val > 5) {
+        results['R'] = 'up';
+        results['E'] = 'up';
+    } else if (dVert_val < -5) {
+        results['R'] = 'down';
+        results['E'] = 'down';
+    } else {
+        results['R'] = 'minus';
+        results['E'] = 'minus';
+    }
+    
+    return results;
 }
 
 function updateGraph() {
     const curve1 = document.getElementById('curve1'); // Downward
     const curve2 = document.getElementById('curve2'); // Upward
     const ghost = document.getElementById('curve1-ghost');
-    const ghost2 = document.getElementById('curve2-ghost');
+    const ghost2El = document.getElementById('curve2-ghost');
     
     // Create ghost2 if it doesn't exist
-    if (!ghost2) {
+    if (!ghost2El) {
         const newGhost = document.createElementNS("http://www.w3.org/2000/svg", "line");
         newGhost.setAttribute("id", "curve2-ghost");
         newGhost.setAttribute("x1", "110");
@@ -229,20 +289,28 @@ function updateGraph() {
         document.getElementById("curves-group").appendChild(newGhost);
     }
     
-    const ghost2El = document.getElementById('curve2-ghost');
+    const ghost2 = document.getElementById('curve2-ghost');
+    
+    const dC = state.variables.C || 0;
+    const dI = state.variables.I || 0;
+    const dG = state.variables.G || 0;
+    const dNX = state.variables.NX || 0;
+    const dM = state.variables.M || 0;
+    const dP = state.variables.P || 0;
+    const dRstar = state.variables['R*'] || 0;
+    const dEstar = state.variables['E*'] || 0;
     
     let shift1 = 0; 
     let shift2 = 0; 
     
     if (state.model === 'aadd') {
-        shift1 = state.variables.M; 
-        shift2 = state.variables.G; 
+        shift1 = dC + dI + dG + dNX; 
+        shift2 = dM - dP + dRstar + dEstar; 
     } else {
-        shift1 = state.variables.G; 
-        shift2 = state.variables.M; 
+        shift1 = dC + dI + dG + dNX; 
+        shift2 = dM - dP; 
     }
     
-    // Hardcode base coordinates instead of transforms to ensure it works across all SVGs properly
     curve1.setAttribute('x1', 110 + shift1);
     curve1.setAttribute('x2', 310 + shift1);
     
@@ -263,14 +331,14 @@ function updateGraph() {
     }
     
     if (shift2 !== 0) {
-        ghost2El.setAttribute('opacity', '0.3');
+        ghost2.setAttribute('opacity', '0.3');
         if (shiftArrows2) {
             shiftArrows2.setAttribute('opacity', '1');
             document.getElementById('arr3-line').setAttribute('x2', 170 + shift2);
             document.getElementById('arr4-line').setAttribute('x2', 250 + shift2);
         }
     } else {
-        ghost2El.setAttribute('opacity', '0');
+        ghost2.setAttribute('opacity', '0');
         if (shiftArrows2) shiftArrows2.setAttribute('opacity', '0');
     }
     

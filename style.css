@@ -193,6 +193,15 @@ header {
     background-color: var(--yellow);
 }
 
+.cursor-pointer {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cursor-pointer:hover {
+    transform: translateY(-2px);
+}
+
 .tile.lightgray {
     background-color: var(--gray-bg);
 }
