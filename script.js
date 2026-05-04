@@ -287,6 +287,7 @@ function updateGraph() {
     xGuide2.setAttribute('x1', 60);
     xGuide2.setAttribute('y1', newY);
     xGuide2.setAttribute('x2', newX);
+    xGuide2.setAttribute('y2', newY);
     
     if (shift1 !== 0 || shift2 !== 0) {
         yGuide2.setAttribute('opacity', '1');
