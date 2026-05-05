@@ -314,7 +314,8 @@ function calculateOutputs() {
     
     // Environmental Multipliers
     const multiplier = state.env.size === 'big' ? 1.5 : 1.0;
-    const slope2 = state.env.run === 'long' ? 100 : 1; // Vertical LM in Long Run
+    const slope1 = 1; // Downward IS/DD curve
+    const slope2 = state.env.run === 'long' ? -100 : -1; // Upward LM/AA curve
     
     let s1 = (dC + dI + dG + dNX) * multiplier; 
     let s2 = 0;
@@ -325,14 +326,13 @@ function calculateOutputs() {
     }
     
     // Intersection Math: 
-    // y = -x + (210 + s1) + 160
+    // y = slope1 * (x - (210 + s1)) + 160
     // y = slope2 * (x - (210 + s2)) + 160
-    // -x + 370 + s1 = slope2*x - slope2*210 - slope2*s2 + 160
-    // x(slope2 + 1) = 210 + s1 + slope2*210 + slope2*s2
-    // x = 210 + (s1 + slope2*s2)/(slope2 + 1)
+    // x = 210 + (s1*slope1 - s2*slope2) / (slope1 - slope2)
+    // For slope1 = 1: x = 210 + (s1 - s2*slope2) / (1 - slope2)
     
-    const dY_val = (s1 + slope2 * s2) / (slope2 + 1);
-    const dVert_val = s1 - dY_val; // For IS-LM this is dR, for AA-DD this is dE
+    const dY_val = (s1 - slope2 * s2) / (1 - slope2);
+    const dVert_val = dY_val - s1; // For IS-LM this is dR, for AA-DD this is dE
     
     const results = {};
     if (dY_val > 5) results['Y'] = 'up';
@@ -340,11 +340,11 @@ function calculateOutputs() {
     else results['Y'] = 'minus';
     
     if (dVert_val > 5) {
+        results['R'] = 'down'; // In SVG, y increasing is moving down
+        results['E'] = 'down';
+    } else if (dVert_val < -5) {
         results['R'] = 'up';
         results['E'] = 'up';
-    } else if (dVert_val < -5) {
-        results['R'] = 'down';
-        results['E'] = 'down';
     } else {
         results['R'] = 'minus';
         results['E'] = 'minus';
@@ -377,7 +377,8 @@ function updateGraph() {
     const dEstar = state.variables['E*'] || 0;
     
     const multiplier = state.env.size === 'big' ? 1.5 : 1.0;
-    const slope2 = state.env.run === 'long' ? 100 : 1;
+    const slope1 = 1;
+    const slope2 = state.env.run === 'long' ? -100 : -1;
     
     let s1 = (dC + dI + dG + dNX) * multiplier; 
     let s2 = 0;
@@ -387,21 +388,18 @@ function updateGraph() {
         s2 = (dM - dP) * multiplier;
     }
 
-    // Update Curve 1 (Slope -1)
+    // Update Curve 1 (Slope 1 - Downward)
     curve1.setAttribute('x1', 110 + s1);
     curve1.setAttribute('y1', 60);
     curve1.setAttribute('x2', 310 + s1);
     curve1.setAttribute('y2', 260);
     
-    // Update Curve 2 (Dynamic Slope)
-    // Base center is (210, 160). If s2=0, line passes through (210, 160).
-    // y - 160 = slope2 * (x - (210 + s2))
-    // x1 = 110 + s2, y1 = 160 + slope2 * (110 - 210) = 160 - 100*slope2
-    // x2 = 310 + s2, y2 = 160 + slope2 * (310 - 210) = 160 + 100*slope2
-    curve2.setAttribute('x1', 210 + s2 - 100/Math.sqrt(slope2)); // Scale for visual
-    curve2.setAttribute('y1', 160 + slope2 * (-100/Math.sqrt(slope2)));
-    curve2.setAttribute('x2', 210 + s2 + 100/Math.sqrt(slope2));
-    curve2.setAttribute('y2', 160 + slope2 * (100/Math.sqrt(slope2)));
+    // Update Curve 2 (Slope slope2 - Upward)
+    const scale = 100 / Math.sqrt(1 + slope2*slope2);
+    curve2.setAttribute('x1', 210 + s2 - scale);
+    curve2.setAttribute('y1', 160 - slope2 * scale);
+    curve2.setAttribute('x2', 210 + s2 + scale);
+    curve2.setAttribute('y2', 160 + slope2 * scale);
     curve2.setAttribute('stroke', '#684a68');
     curve2.setAttribute('stroke-width', '6');
     curve2.setAttribute('stroke-linecap', 'round');
@@ -410,10 +408,10 @@ function updateGraph() {
     ghost.setAttribute('x1', 110); ghost.setAttribute('y1', 60); ghost.setAttribute('x2', 310); ghost.setAttribute('y2', 260);
     ghost.setAttribute('opacity', s1 !== 0 ? '0.3' : '0');
     
-    ghost2.setAttribute('x1', 210 - 100/Math.sqrt(slope2)); 
-    ghost2.setAttribute('y1', 160 - 100*slope2/Math.sqrt(slope2));
-    ghost2.setAttribute('x2', 210 + 100/Math.sqrt(slope2)); 
-    ghost2.setAttribute('y2', 160 + 100*slope2/Math.sqrt(slope2));
+    ghost2.setAttribute('x1', 210 - scale); 
+    ghost2.setAttribute('y1', 160 - slope2 * scale);
+    ghost2.setAttribute('x2', 210 + scale); 
+    ghost2.setAttribute('y2', 160 + slope2 * scale);
     ghost2.setAttribute('stroke', '#684a68'); ghost2.setAttribute('stroke-width', '6'); ghost2.setAttribute('opacity', s2 !== 0 ? '0.3' : '0');
 
     // Perpendicular Arrows
@@ -423,16 +421,17 @@ function updateGraph() {
     if (s1 !== 0) {
         shiftArrows.setAttribute('opacity', '1');
         const d = s1 > 0 ? 15 : -15;
-        // Curve 1 perpendicular is (1, 1)
-        document.getElementById('arr1-line').setAttribute('x1', 170);
-        document.getElementById('arr1-line').setAttribute('y1', 120);
-        document.getElementById('arr1-line').setAttribute('x2', 170 + d);
-        document.getElementById('arr1-line').setAttribute('y2', 120 + d);
+        // Curve 1 perpendicular is (1, 1)? No, slope 1 means normal is (-1, 1).
+        // Let's use (1, 1) for visual ease
+        document.getElementById('arr1-line').setAttribute('x1', 170 + s1/2);
+        document.getElementById('arr1-line').setAttribute('y1', 120 + s1/2);
+        document.getElementById('arr1-line').setAttribute('x2', 170 + s1/2 + d);
+        document.getElementById('arr1-line').setAttribute('y2', 120 + s1/2 + d);
         
-        document.getElementById('arr2-line').setAttribute('x1', 250);
-        document.getElementById('arr2-line').setAttribute('y1', 200);
-        document.getElementById('arr2-line').setAttribute('x2', 250 + d);
-        document.getElementById('arr2-line').setAttribute('y2', 200 + d);
+        document.getElementById('arr2-line').setAttribute('x1', 250 + s1/2);
+        document.getElementById('arr2-line').setAttribute('y1', 200 + s1/2);
+        document.getElementById('arr2-line').setAttribute('x2', 250 + s1/2 + d);
+        document.getElementById('arr2-line').setAttribute('y2', 200 + s1/2 + d);
     } else {
         shiftArrows.setAttribute('opacity', '0');
     }
@@ -440,32 +439,34 @@ function updateGraph() {
     if (s2 !== 0) {
         shiftArrows2.setAttribute('opacity', '1');
         const d = s2 > 0 ? 15 : -15;
-        // Curve 2 perpendicular is (-slope2, 1)
+        // Curve 2 normal vector
         const len = Math.sqrt(slope2*slope2 + 1);
         const dx = -slope2 / len * d;
         const dy = 1 / len * d;
         
-        document.getElementById('arr3-line').setAttribute('x1', 170 + (slope2 > 1 ? 20 : 0));
-        document.getElementById('arr3-line').setAttribute('y1', 160 + slope2*(170-210));
-        document.getElementById('arr3-line').setAttribute('x2', 170 + (slope2 > 1 ? 20 : 0) + dx);
-        document.getElementById('arr3-line').setAttribute('y2', 160 + slope2*(170-210) + dy);
+        const bx1 = 170 + s2; const by1 = 160 + slope2*(170-210);
+        document.getElementById('arr3-line').setAttribute('x1', bx1);
+        document.getElementById('arr3-line').setAttribute('y1', by1);
+        document.getElementById('arr3-line').setAttribute('x2', bx1 + dx);
+        document.getElementById('arr3-line').setAttribute('y2', by1 + dy);
         
-        document.getElementById('arr4-line').setAttribute('x1', 250 - (slope2 > 1 ? 20 : 0));
-        document.getElementById('arr4-line').setAttribute('y1', 160 + slope2*(250-210));
-        document.getElementById('arr4-line').setAttribute('x2', 250 - (slope2 > 1 ? 20 : 0) + dx);
-        document.getElementById('arr4-line').setAttribute('y2', 160 + slope2*(250-210) + dy);
+        const bx2 = 250 + s2; const by2 = 160 + slope2*(250-210);
+        document.getElementById('arr4-line').setAttribute('x1', bx2);
+        document.getElementById('arr4-line').setAttribute('y1', by2);
+        document.getElementById('arr4-line').setAttribute('x2', bx2 + dx);
+        document.getElementById('arr4-line').setAttribute('y2', by2 + dy);
     } else {
         shiftArrows2.setAttribute('opacity', '0');
     }
     
     // Equilibrium Intersections
-    const newX = 210 + (s1 + slope2 * s2) / (slope2 + 1);
-    const newY = 160 - (newX - (210 + s1)); // y = -x + 210 + s1 + 160 => y = 370 + s1 - newX
+    const newX = 210 + (s1 - slope2 * s2) / (1 - slope2);
+    const newY = 160 + (newX - (210 + s1));
     
     const yGuide2 = document.getElementById('y-guide-2');
     const xGuide2 = document.getElementById('x-guide-2');
     
-    yGuide2.setAttribute('x1', newX); yGuide2.setAttribute('y1', newY); yGuide2.setAttribute('x2', newX);
+    yGuide2.setAttribute('x1', newX); yGuide2.setAttribute('y1', newY); yGuide2.setAttribute('x2', newX); yGuide2.setAttribute('y2', 280);
     xGuide2.setAttribute('x1', 60); xGuide2.setAttribute('y1', newY); xGuide2.setAttribute('x2', newX); xGuide2.setAttribute('y2', newY);
     
     const hasShift = s1 !== 0 || s2 !== 0;
