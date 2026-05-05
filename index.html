@@ -4,8 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Intuonomy - Interactive Macroeconomic Visualizer</title>
-    <meta name="description" content="Interactive macroeconomic models including IS-LM and AA-DD. Visualize how short-run and long-run economic shocks shift output, interest rates, and exchange rates.">
-    <meta name="keywords" content="macroeconomics, IS-LM model, AA-DD model, economic visualizer, economics student tools, long run, short run, open economy">
+    <meta name="description" content="Intuonomy is an interactive macroeconomic visualizer. Understand complex economic models like IS-LM and AA-DD through real-time dragging and dropping of inputs. Perfect for economics and MBA students.">
+    <meta name="keywords" content="intuonomy, macroeconomics, IS-LM model, AA-DD model, economic visualizer, economics student tools, long run, short run, open economy">
+    <meta property="og:title" content="Intuonomy - Interactive Macroeconomic Visualizer">
+    <meta property="og:description" content="Understand complex economic models like IS-LM and AA-DD through real-time dragging and dropping.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://intuonomy.com/">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalApplication",
+      "name": "Intuonomy",
+      "description": "An interactive digital visualizer for macroeconomic models such as IS-LM and AA-DD.",
+      "applicationCategory": "EducationalTool",
+      "operatingSystem": "Web browser",
+      "url": "https://intuonomy.com/"
+    }
+    </script>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
@@ -101,7 +117,7 @@
             <div class="col graph-col">
                 <div class="graph-box">
                     <div class="graph-tag" id="current-model-tag">AA-DD</div>
-                    <svg viewBox="0 0 400 350" width="100%" height="100%">
+                    <svg viewBox="0 0 400 350" width="100%" style="display: block; max-height: 100%;">
                         <defs>
                             <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                                 <polygon points="0 0, 10 3.5, 0 7" fill="black" />
@@ -180,7 +196,7 @@
         </footer>
     </div>
 
-    <script src="script.js?v=1.6"></script>
+    <script src="script.js?v=1.7"></script>
 </body>
 </html>
 <!-- Deployment Trigger: Mon May  4 13:07:18 PDT 2026 -->
