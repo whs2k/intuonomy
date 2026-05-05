@@ -4,7 +4,12 @@ const state = {
     selectedInputs: ['M', 'G'], 
     selectedOutputs: ['R', 'Y'],
     variables: {}, 
-    activeArrows: {} 
+    activeArrows: {},
+    env: {
+        run: 'short',
+        openness: 'closed',
+        size: 'small'
+    }
 };
 
 // Base Intersections
@@ -77,6 +82,11 @@ const VARIABLE_DESCRIPTIONS = {
     ]
 };
 
+const MODEL_DESCRIPTIONS = {
+    islm: "<b>IS-LM Model</b>: Analyzes the equilibrium between the goods market (IS) and the money market (LM) to determine real interest rates and national income.",
+    aadd: "<b>AA-DD Model</b>: Examines the relationship between the exchange rate (AA) and output (DD) in an open economy, focusing on asset market and goods market balance."
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Determine initial model from HTML active button
     const activeModelBtn = document.querySelector('.model-btn.active');
@@ -125,11 +135,39 @@ function attachEventListeners() {
             updateGraph();
         });
     });
+    // Environmental Toggles
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const target = e.currentTarget;
+            const group = target.dataset.group;
+            const val = target.dataset.val;
+
+            document.querySelectorAll(`.toggle-btn[data-group="${group}"]`).forEach(b => {
+                b.classList.remove('active');
+            });
+            target.classList.add('active');
+
+            state.env[group] = val;
+            
+            // Auto-remove NX if closed
+            if (group === 'openness' && val === 'closed') {
+                state.selectedInputs = state.selectedInputs.filter(v => v !== 'NX');
+            }
+
+            updateUIForModel();
+            updateGraph();
+        });
+    });
 }
 
 function updateUIForModel() {
     // Update Equation
-    document.getElementById('equation-container').innerHTML = FORMULAS[state.model];
+    let formulaHtml = FORMULAS[state.model];
+    if (state.env.openness === 'closed') {
+        // Remove NX part from IS/DD formula
+        formulaHtml = formulaHtml.replace(/<span class="op">\+<\/span>\s*<div[^>]*data-var="NX"[^>]*>NX<\/div>/g, '');
+    }
+    document.getElementById('equation-container').innerHTML = formulaHtml;
     
     // Attach click listeners to new equation tiles
     document.querySelectorAll('#equation-container .cursor-pointer').forEach(tile => {
@@ -163,9 +201,20 @@ function updateUIForModel() {
     
     // Update Variable Info
     const infoContainer = document.getElementById('variable-info');
-    infoContainer.innerHTML = VARIABLE_DESCRIPTIONS[state.model].map(item => `
+    let descriptions = VARIABLE_DESCRIPTIONS[state.model];
+    if (state.env.openness === 'closed') {
+        descriptions = descriptions.filter(d => d.v !== 'NX');
+    }
+    infoContainer.innerHTML = descriptions.map(item => `
         <div class="var-item"><b>${item.v}</b>: ${item.d}. <i>Ex: ${item.e}</i></div>
     `).join('');
+
+    // Update Model Description
+    let modelDesc = MODEL_DESCRIPTIONS[state.model];
+    if (state.env.run === 'long') {
+        modelDesc += " <br><br><i>Long Run Mode: Prices are flexible and output is fixed at the full-employment level, making the " + (state.model === 'islm' ? 'LM' : 'AA') + " curve vertical.</i>";
+    }
+    document.getElementById('model-description').innerHTML = modelDesc;
 
     renderDynamicColumns();
 }
@@ -258,29 +307,34 @@ function calculateOutputs() {
     const dI = state.variables.I || 0;
     const dG = state.variables.G || 0;
     const dNX = state.variables.NX || 0;
-    
     const dM = state.variables.M || 0;
     const dP = state.variables.P || 0;
     const dRstar = state.variables['R*'] || 0;
     const dEstar = state.variables['E*'] || 0;
     
-    let shift1 = 0; 
-    let shift2 = 0; 
+    // Environmental Multipliers
+    const multiplier = state.env.size === 'big' ? 1.5 : 1.0;
+    const slope2 = state.env.run === 'long' ? 100 : 1; // Vertical LM in Long Run
     
+    let s1 = (dC + dI + dG + dNX) * multiplier; 
+    let s2 = 0;
     if (state.model === 'aadd') {
-        shift1 = dC + dI + dG + dNX; // DD curve shifts right
-        shift2 = dM - dP + dRstar + dEstar; // AA curve shifts right
+        s2 = (dM - dP + dRstar + dEstar) * multiplier;
     } else {
-        shift1 = dC + dI + dG + dNX; // IS curve shifts right
-        shift2 = dM - dP; // LM curve shifts right
+        s2 = (dM - dP) * multiplier;
     }
     
-    const dY_val = (shift1 + shift2) / 2;
-    const dVert_val = (shift1 - shift2) / 2; // For IS-LM this is dR, for AA-DD this is dE
+    // Intersection Math: 
+    // y = -x + (210 + s1) + 160
+    // y = slope2 * (x - (210 + s2)) + 160
+    // -x + 370 + s1 = slope2*x - slope2*210 - slope2*s2 + 160
+    // x(slope2 + 1) = 210 + s1 + slope2*210 + slope2*s2
+    // x = 210 + (s1 + slope2*s2)/(slope2 + 1)
+    
+    const dY_val = (s1 + slope2 * s2) / (slope2 + 1);
+    const dVert_val = s1 - dY_val; // For IS-LM this is dR, for AA-DD this is dE
     
     const results = {};
-    
-    // Convert numerical shift to 'up', 'down', 'minus' state
     if (dY_val > 5) results['Y'] = 'up';
     else if (dY_val < -5) results['Y'] = 'down';
     else results['Y'] = 'minus';
@@ -300,28 +354,19 @@ function calculateOutputs() {
 }
 
 function updateGraph() {
-    const curve1 = document.getElementById('curve1'); // Downward
-    const curve2 = document.getElementById('curve2'); // Upward
+    const curve1 = document.getElementById('curve1');
+    const curve2 = document.getElementById('curve2');
     const ghost = document.getElementById('curve1-ghost');
     const ghost2El = document.getElementById('curve2-ghost');
     
-    // Create ghost2 if it doesn't exist
     if (!ghost2El) {
         const newGhost = document.createElementNS("http://www.w3.org/2000/svg", "line");
         newGhost.setAttribute("id", "curve2-ghost");
-        newGhost.setAttribute("x1", "110");
-        newGhost.setAttribute("y1", "260");
-        newGhost.setAttribute("x2", "310");
-        newGhost.setAttribute("y2", "60");
-        newGhost.setAttribute("stroke", "#684a68");
-        newGhost.setAttribute("stroke-width", "6");
-        newGhost.setAttribute("stroke-linecap", "round");
-        newGhost.setAttribute("opacity", "0");
         document.getElementById("curves-group").appendChild(newGhost);
     }
-    
     const ghost2 = document.getElementById('curve2-ghost');
     
+    // Variables & Toggles
     const dC = state.variables.C || 0;
     const dI = state.variables.I || 0;
     const dG = state.variables.G || 0;
@@ -331,68 +376,99 @@ function updateGraph() {
     const dRstar = state.variables['R*'] || 0;
     const dEstar = state.variables['E*'] || 0;
     
-    let shift1 = 0; 
-    let shift2 = 0; 
+    const multiplier = state.env.size === 'big' ? 1.5 : 1.0;
+    const slope2 = state.env.run === 'long' ? 100 : 1;
     
+    let s1 = (dC + dI + dG + dNX) * multiplier; 
+    let s2 = 0;
     if (state.model === 'aadd') {
-        shift1 = dC + dI + dG + dNX; 
-        shift2 = dM - dP + dRstar + dEstar; 
+        s2 = (dM - dP + dRstar + dEstar) * multiplier;
     } else {
-        shift1 = dC + dI + dG + dNX; 
-        shift2 = dM - dP; 
+        s2 = (dM - dP) * multiplier;
     }
+
+    // Update Curve 1 (Slope -1)
+    curve1.setAttribute('x1', 110 + s1);
+    curve1.setAttribute('y1', 60);
+    curve1.setAttribute('x2', 310 + s1);
+    curve1.setAttribute('y2', 260);
     
-    curve1.setAttribute('x1', 110 + shift1);
-    curve1.setAttribute('x2', 310 + shift1);
+    // Update Curve 2 (Dynamic Slope)
+    // Base center is (210, 160). If s2=0, line passes through (210, 160).
+    // y - 160 = slope2 * (x - (210 + s2))
+    // x1 = 110 + s2, y1 = 160 + slope2 * (110 - 210) = 160 - 100*slope2
+    // x2 = 310 + s2, y2 = 160 + slope2 * (310 - 210) = 160 + 100*slope2
+    curve2.setAttribute('x1', 210 + s2 - 100/Math.sqrt(slope2)); // Scale for visual
+    curve2.setAttribute('y1', 160 + slope2 * (-100/Math.sqrt(slope2)));
+    curve2.setAttribute('x2', 210 + s2 + 100/Math.sqrt(slope2));
+    curve2.setAttribute('y2', 160 + slope2 * (100/Math.sqrt(slope2)));
+    curve2.setAttribute('stroke', '#684a68');
+    curve2.setAttribute('stroke-width', '6');
+    curve2.setAttribute('stroke-linecap', 'round');
+
+    // Ghosts
+    ghost.setAttribute('x1', 110); ghost.setAttribute('y1', 60); ghost.setAttribute('x2', 310); ghost.setAttribute('y2', 260);
+    ghost.setAttribute('opacity', s1 !== 0 ? '0.3' : '0');
     
-    curve2.setAttribute('x1', 110 + shift2);
-    curve2.setAttribute('x2', 310 + shift2);
-    
+    ghost2.setAttribute('x1', 210 - 100/Math.sqrt(slope2)); 
+    ghost2.setAttribute('y1', 160 - 100*slope2/Math.sqrt(slope2));
+    ghost2.setAttribute('x2', 210 + 100/Math.sqrt(slope2)); 
+    ghost2.setAttribute('y2', 160 + 100*slope2/Math.sqrt(slope2));
+    ghost2.setAttribute('stroke', '#684a68'); ghost2.setAttribute('stroke-width', '6'); ghost2.setAttribute('opacity', s2 !== 0 ? '0.3' : '0');
+
+    // Perpendicular Arrows
     const shiftArrows = document.getElementById('shift-arrows');
     const shiftArrows2 = document.getElementById('shift-arrows-2');
     
-    if (shift1 !== 0) {
-        ghost.setAttribute('opacity', '0.3');
+    if (s1 !== 0) {
         shiftArrows.setAttribute('opacity', '1');
-        document.getElementById('arr1-line').setAttribute('x2', 170 + shift1);
-        document.getElementById('arr2-line').setAttribute('x2', 250 + shift1);
+        const d = s1 > 0 ? 15 : -15;
+        // Curve 1 perpendicular is (1, 1)
+        document.getElementById('arr1-line').setAttribute('x1', 170);
+        document.getElementById('arr1-line').setAttribute('y1', 120);
+        document.getElementById('arr1-line').setAttribute('x2', 170 + d);
+        document.getElementById('arr1-line').setAttribute('y2', 120 + d);
+        
+        document.getElementById('arr2-line').setAttribute('x1', 250);
+        document.getElementById('arr2-line').setAttribute('y1', 200);
+        document.getElementById('arr2-line').setAttribute('x2', 250 + d);
+        document.getElementById('arr2-line').setAttribute('y2', 200 + d);
     } else {
-        ghost.setAttribute('opacity', '0');
         shiftArrows.setAttribute('opacity', '0');
     }
     
-    if (shift2 !== 0) {
-        ghost2.setAttribute('opacity', '0.3');
-        if (shiftArrows2) {
-            shiftArrows2.setAttribute('opacity', '1');
-            document.getElementById('arr3-line').setAttribute('x2', 170 + shift2);
-            document.getElementById('arr4-line').setAttribute('x2', 250 + shift2);
-        }
+    if (s2 !== 0) {
+        shiftArrows2.setAttribute('opacity', '1');
+        const d = s2 > 0 ? 15 : -15;
+        // Curve 2 perpendicular is (-slope2, 1)
+        const len = Math.sqrt(slope2*slope2 + 1);
+        const dx = -slope2 / len * d;
+        const dy = 1 / len * d;
+        
+        document.getElementById('arr3-line').setAttribute('x1', 170 + (slope2 > 1 ? 20 : 0));
+        document.getElementById('arr3-line').setAttribute('y1', 160 + slope2*(170-210));
+        document.getElementById('arr3-line').setAttribute('x2', 170 + (slope2 > 1 ? 20 : 0) + dx);
+        document.getElementById('arr3-line').setAttribute('y2', 160 + slope2*(170-210) + dy);
+        
+        document.getElementById('arr4-line').setAttribute('x1', 250 - (slope2 > 1 ? 20 : 0));
+        document.getElementById('arr4-line').setAttribute('y1', 160 + slope2*(250-210));
+        document.getElementById('arr4-line').setAttribute('x2', 250 - (slope2 > 1 ? 20 : 0) + dx);
+        document.getElementById('arr4-line').setAttribute('y2', 160 + slope2*(250-210) + dy);
     } else {
-        ghost2.setAttribute('opacity', '0');
-        if (shiftArrows2) shiftArrows2.setAttribute('opacity', '0');
+        shiftArrows2.setAttribute('opacity', '0');
     }
     
-    const newX = BASE_X + (shift1 + shift2) / 2;
-    const newY = BASE_Y - (shift1 - shift2) / 2;
+    // Equilibrium Intersections
+    const newX = 210 + (s1 + slope2 * s2) / (slope2 + 1);
+    const newY = 160 - (newX - (210 + s1)); // y = -x + 210 + s1 + 160 => y = 370 + s1 - newX
     
     const yGuide2 = document.getElementById('y-guide-2');
     const xGuide2 = document.getElementById('x-guide-2');
     
-    yGuide2.setAttribute('x1', newX);
-    yGuide2.setAttribute('y1', newY);
-    yGuide2.setAttribute('x2', newX);
+    yGuide2.setAttribute('x1', newX); yGuide2.setAttribute('y1', newY); yGuide2.setAttribute('x2', newX);
+    xGuide2.setAttribute('x1', 60); xGuide2.setAttribute('y1', newY); xGuide2.setAttribute('x2', newX); xGuide2.setAttribute('y2', newY);
     
-    xGuide2.setAttribute('x1', 60);
-    xGuide2.setAttribute('y1', newY);
-    xGuide2.setAttribute('x2', newX);
-    xGuide2.setAttribute('y2', newY);
-    
-    if (shift1 !== 0 || shift2 !== 0) {
-        yGuide2.setAttribute('opacity', '1');
-        xGuide2.setAttribute('opacity', '1');
-    } else {
-        yGuide2.setAttribute('opacity', '0');
-        xGuide2.setAttribute('opacity', '0');
-    }
+    const hasShift = s1 !== 0 || s2 !== 0;
+    yGuide2.setAttribute('opacity', hasShift ? '1' : '0');
+    xGuide2.setAttribute('opacity', hasShift ? '1' : '0');
 }
