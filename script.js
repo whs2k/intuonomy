@@ -215,6 +215,14 @@ function updateUIForModel() {
         modelDesc += " <br><br><i>Long Run Mode: Prices are flexible and output is fixed at the full-employment level, making the " + (state.model === 'islm' ? 'LM' : 'AA') + " curve vertical.</i>";
     }
     document.getElementById('model-description').innerHTML = modelDesc;
+    
+    // Update Legend
+    const legend1 = document.getElementById('legend-curve1-text');
+    const legend2 = document.getElementById('legend-curve2-text');
+    if (legend1 && legend2) {
+        legend1.textContent = state.model === 'islm' ? 'IS' : 'DD';
+        legend2.textContent = state.model === 'islm' ? 'LM' : 'AA';
+    }
 
     renderDynamicColumns();
 }
@@ -421,17 +429,23 @@ function updateGraph() {
     if (s1 !== 0) {
         shiftArrows.setAttribute('opacity', '1');
         const d = s1 > 0 ? 15 : -15;
-        // Curve 1 perpendicular is (1, 1)? No, slope 1 means normal is (-1, 1).
-        // Let's use (1, 1) for visual ease
-        document.getElementById('arr1-line').setAttribute('x1', 170 + s1/2);
-        document.getElementById('arr1-line').setAttribute('y1', 120 + s1/2);
-        document.getElementById('arr1-line').setAttribute('x2', 170 + s1/2 + d);
-        document.getElementById('arr1-line').setAttribute('y2', 120 + s1/2 + d);
+        // Curve 1 perpendicular vector (Slope is 1, so downward line in SVG)
+        // Unit normal vector pointing to the right is (1/sqrt(2), -1/sqrt(2))
+        const px = s1 / 2;
+        const py = -s1 / 2;
         
-        document.getElementById('arr2-line').setAttribute('x1', 250 + s1/2);
-        document.getElementById('arr2-line').setAttribute('y1', 200 + s1/2);
-        document.getElementById('arr2-line').setAttribute('x2', 250 + s1/2 + d);
-        document.getElementById('arr2-line').setAttribute('y2', 200 + s1/2 + d);
+        // Base points on the ghost line
+        const gx1 = 170; const gy1 = 120;
+        document.getElementById('arr1-line').setAttribute('x1', gx1);
+        document.getElementById('arr1-line').setAttribute('y1', gy1);
+        document.getElementById('arr1-line').setAttribute('x2', gx1 + px);
+        document.getElementById('arr1-line').setAttribute('y2', gy1 + py);
+        
+        const gx2 = 250; const gy2 = 200;
+        document.getElementById('arr2-line').setAttribute('x1', gx2);
+        document.getElementById('arr2-line').setAttribute('y1', gy2);
+        document.getElementById('arr2-line').setAttribute('x2', gx2 + px);
+        document.getElementById('arr2-line').setAttribute('y2', gy2 + py);
     } else {
         shiftArrows.setAttribute('opacity', '0');
     }
