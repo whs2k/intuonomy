@@ -52,6 +52,31 @@ const FORMULAS = {
     `
 };
 
+const VARIABLE_DESCRIPTIONS = {
+    islm: [
+        { v: 'Y', d: 'Output / Income', e: 'Total annual GDP.' },
+        { v: 'C', d: 'Consumption', e: 'Household grocery spending.' },
+        { v: 'I', d: 'Investment', e: 'Business computer purchases.' },
+        { v: 'G', d: 'Govt Spending', e: 'Public bridge building.' },
+        { v: 'NX', d: 'Net Exports', e: 'Software sold abroad.' },
+        { v: 'M', d: 'Money Supply', e: 'Total cash in circulation.' },
+        { v: 'P', d: 'Price Level', e: 'Average cost of bread.' },
+        { v: 'R', d: 'Interest Rate', e: 'Mortgage borrowing cost.' }
+    ],
+    aadd: [
+        { v: 'Y', d: 'Output / Income', e: 'Total annual GDP.' },
+        { v: 'C', d: 'Consumption', e: 'Household grocery spending.' },
+        { v: 'I', d: 'Investment', e: 'Business computer purchases.' },
+        { v: 'G', d: 'Govt Spending', e: 'Public bridge building.' },
+        { v: 'NX', d: 'Net Exports', e: 'Software sold abroad.' },
+        { v: 'M', d: 'Money Supply', e: 'Total cash in circulation.' },
+        { v: 'P', d: 'Price Level', e: 'Average cost of bread.' },
+        { v: 'E', d: 'Exchange Rate', e: 'Dollars needed per Euro.' },
+        { v: 'R*', d: 'Foreign Rate', e: 'European bond yields.' },
+        { v: 'E*', d: 'Expected Rate', e: 'Sentiment on future value.' }
+    ]
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Determine initial model from HTML active button
     const activeModelBtn = document.querySelector('.model-btn.active');
@@ -136,6 +161,12 @@ function updateUIForModel() {
     document.getElementById('current-model-tag').textContent = state.model === 'islm' ? 'IS-LM' : 'AA-DD';
     document.getElementById('y-axis-label').textContent = state.model === 'islm' ? 'R' : 'E';
     
+    // Update Variable Info
+    const infoContainer = document.getElementById('variable-info');
+    infoContainer.innerHTML = VARIABLE_DESCRIPTIONS[state.model].map(item => `
+        <div class="var-item"><b>${item.v}</b>: ${item.d}. <i>Ex: ${item.e}</i></div>
+    `).join('');
+
     renderDynamicColumns();
 }
 
