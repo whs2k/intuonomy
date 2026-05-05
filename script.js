@@ -48,11 +48,9 @@ const FORMULAS = {
             </div>
         </div>
         <span class="big-bracket">[</span>
-        <div class="fraction-inline">
-            <div class="tile yellow cursor-pointer" data-var="R*" data-type="ex">R*</div> <span class="op">+</span> <div class="tile yellow cursor-pointer" data-var="E*" data-type="ex">E*</div> <span class="op">-</span> <span>1</span>
-            <hr>
-            <div class="tile yellow cursor-pointer" data-var="E" data-type="en" style="margin: 0 auto; display: block; width: max-content;">E</div>
-        </div>
+        <div class="tile yellow cursor-pointer" data-var="R*" data-type="ex">R*</div> <span class="op">+</span> 
+        <span class="bracket">(</span> <div class="tile yellow cursor-pointer" data-var="E*" data-type="ex">E*</div> <span class="op">/</span> <div class="tile yellow cursor-pointer" data-var="E" data-type="en">E</div> <span class="bracket">)</span>
+        <span class="op">-</span> <span style="font-weight: bold;">1</span>
         <span class="big-bracket">]</span>
     `
 };

@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intuonomy - Intuition on the Economy</title>
+    <title>Intuonomy - Interactive Macroeconomic Visualizer</title>
+    <meta name="description" content="Interactive macroeconomic models including IS-LM and AA-DD. Visualize how short-run and long-run economic shocks shift output, interest rates, and exchange rates.">
+    <meta name="keywords" content="macroeconomics, IS-LM model, AA-DD model, economic visualizer, economics student tools, long run, short run, open economy">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
 </head>
@@ -27,23 +29,26 @@
         <!-- Navigation -->
         <nav class="tabs">
             <button class="tab active">Visualize Models</button>
-            <button class="tab">My Models</button>
+            <a href="about.html" class="tab" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">About</a>
             <button class="tab">Forum</button>
         </nav>
 
         <!-- Toggles Row -->
-        <div class="toggles-row">
-            <div class="toggle-group">
+        <div class="toggles-row" style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <div class="toggle-group box" style="flex-direction: row; padding: 15px 10px 10px;">
+                <div class="box-title">Time Horizon</div>
                 <button class="toggle-btn active" data-group="run" data-val="short">Short Run</button> 
                 <span class="or">OR</span> 
                 <button class="toggle-btn" data-group="run" data-val="long">Long Run</button>
             </div>
-            <div class="toggle-group">
+            <div class="toggle-group box" style="flex-direction: row; padding: 15px 10px 10px;">
+                <div class="box-title">Economy Type</div>
                 <button class="toggle-btn active" data-group="openness" data-val="closed">Closed</button> 
                 <span class="or">OR</span> 
                 <button class="toggle-btn" data-group="openness" data-val="open">Open</button>
             </div>
-            <div class="toggle-group">
+            <div class="toggle-group box" style="flex-direction: row; padding: 15px 10px 10px;">
+                <div class="box-title">Economy Size</div>
                 <button class="toggle-btn" data-group="size" data-val="big">Big</button> 
                 <span class="or">OR</span> 
                 <button class="toggle-btn active" data-group="size" data-val="small">Small</button>
@@ -168,10 +173,11 @@
 
         <footer class="site-footer">
             <p>Reference: Krugman, Obstfeld, & Melitz, <i>"International Economics: Theory and Policy"</i> (Pearson).</p>
+            <p style="margin-top: 5px; font-size: 0.8em; color: #666;">Email all feedback to intuonomy@gmail.com</p>
         </footer>
     </div>
 
-    <script src="script.js?v=1.4"></script>
+    <script src="script.js?v=1.5"></script>
 </body>
 </html>
 <!-- Deployment Trigger: Mon May  4 13:07:18 PDT 2026 -->

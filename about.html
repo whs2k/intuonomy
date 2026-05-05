@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Intuonomy</title>
+    <meta name="description" content="Learn about Intuonomy, an interactive macroeconomic visualizer helping students understand complex economic models.">
+    <meta name="keywords" content="about intuonomy, macroeconomics education, interactive economics, IS-LM, AA-DD">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .about-content {
+            background: var(--bg-color);
+            padding: 30px;
+            border: 1.5px solid var(--border-color);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .about-content h1 {
+            margin-top: 0;
+            color: #333;
+        }
+        .about-content h2 {
+            margin-top: 30px;
+            color: #444;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .about-content p {
+            margin-bottom: 15px;
+        }
+        .about-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .about-content blockquote {
+            border-left: 4px solid var(--accent-color);
+            margin: 15px 0;
+            padding-left: 15px;
+            color: #555;
+            font-style: italic;
+        }
+        .about-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="title">Intuonomy</span>
+                <span class="subtitle">Intuition on the Economy</span>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="tabs">
+            <a href="index.html" class="tab" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center;">Visualize Models</a>
+            <button class="tab active">About</button>
+            <button class="tab">Forum</button>
+        </nav>
+
+        <div class="about-content">
+            <h1>Intuonomy</h1>
+            <p>Have you ever taken a Macro Economics course in undergrad or graduate school? If you have a B.S., chances are you have (that’s 72,741,246 American Adults). Remember those annoying models and graphs (IS-LM, AA, DD, Supply, Demand, etc) and having to shift them around on tests? Annoying. Why? Because all the graphs are static, not exactly interactive; frustrating.</p>
+            <p>There are nearly 1M MBA students in the USA alone who must struggle with at least 2-3 ECON intensive courses.</p>
+            <p>The basics of economics is simple: you build up complex models about the way the world values and exchanges resources by first creating smaller blocks relating two or three important variables (like Interest Rate, Exports, Exchange Rate, inflation, GDP/Output, etc). These models are visualized on 2D graphs to make comprehension easier; however, there is still limitations to this static representation. Without seeing movement, and being able to interact with these graphs students grasp the material at an add hoc basis and slower than they do other concepts.</p>
+            
+            <h2>Testing the Market</h2>
+            <p>Go on YouTube and you will find a plethora of videos about students trying to explain economic models (IS-LM, AA-DD etc). Here is one of the better ones I found explaining a very simplified situation. Some comments:</p>
+            <ul>
+                <li>“THANK. YOU. I've been reading a lot on my textbook and I just cannot get the knack of it”</li>
+                <li>“Sweet jesus than you so much you've single-handedly saved my major”</li>
+                <li>“Really good and simple video man”</li>
+                <li>“thankyou can you also explain how is and lm curves get steeper or flatter?”</li>
+                <li>“SO impressed! Such a great video! Exam is on Monday and i feel SO much better!”</li>
+            </ul>
+            <p>Every student in the world has their notebook scratched up with pages and pages of these kinds of graphs and arrows, but the material is difficult to parse later:</p>
+            <img src="static/ISLM+Model2.png" alt="ISLM Notes">
+            
+            <p>It is a shame too because understanding economics (how you can make assumptions and build simple models to understand relationships such as):</p>
+            <blockquote>
+                <p><strong>GDP = Output of a County =</strong></p>
+                <p>C + G + I + NX</p>
+                <p>Stuff Citizens Buy + Government Spending + Stuff Companies Buy + (Xports – iMports)</p>
+            </blockquote>
+
+            <h2>A Solution</h2>
+            <p>Economics is interesting, but Economists (even joke to themselves that they) are terrible at explaining things. This digital product will be a simple barebones drag and drop interface that allows users to actually see variables and concepts changing as the graphs do.</p>
+            <p>Clean and lightweight, this interface will allow users to put in different inputs and instantly visualize curves and models shift back and forth accordingly. Simple, fast failure, repetition; understanding.</p>
+            <img src="static/ISLM+Shift+Economy.gif" alt="ISLM Shift GIF">
+
+            <h2>What Does Success Look Like?</h2>
+            <p>A community and historical dialogue about today's economic policy options. This is an OPM Economic scoring tool for the masses; integrating with other education and news outlets.</p>
+        </div>
+
+        <footer class="site-footer">
+            <p>Reference: Krugman, Obstfeld, & Melitz, <i>"International Economics: Theory and Policy"</i> (Pearson).</p>
+            <p style="margin-top: 5px; font-size: 0.8em; color: #666;">Email all feedback to intuonomy@gmail.com</p>
+        </footer>
+    </div>
+</body>
+</html>
